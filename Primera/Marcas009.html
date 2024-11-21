@@ -1,0 +1,40 @@
+<html>
+<head>
+	<title>Tres en raya (fase 1)</title>
+<style type="text/css">
+.val{ 
+		width:30;
+		height:35;
+		background-color:yellow
+}
+.noval{
+		width:30;
+		height:35;
+		background-color:green
+}
+</style>
+<script language="JavaScript">
+function cambiar(){
+	//alert(event.srcElement.className);
+	if (event.srcElement.className == "val")
+			event.srcElement.className = "noval";
+	else if (event.srcElement.className == "noval")
+			event.srcElement.className = "val";
+}
+</script>
+</head>
+<body onclick="cambiar()">
+<h1 align="center">Juego de las tres en raya</h1>
+<table align="center" border="5" cellspacing="5">
+<tr>
+		<td class="val"></td><td class="val"></td><td class="val"></td>
+</tr>
+<tr>
+		<td class="val"></td><td class="val"></td><td class="val"></td>
+</tr>
+<tr>
+		<td class="val"></td><td class="val"></td><td class="val"></td>
+</tr>
+</table>
+</body>
+</html>

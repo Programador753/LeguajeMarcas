@@ -1,0 +1,103 @@
+<html>
+
+<head>
+<title>Eventos en General</title>
+<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+<script language="JavaScript">
+    $(document).ready(function(){
+        $(document).on("mousemove", function(e){ //Evento mover raton 
+            $("#divCoordenadas").html("<strong>" + e.pageX + "</strong> - <strong>" + e.pageY + "</strong>");
+        });
+        $(document).on("contextmenu", function (e){ // Evento click derecho
+            e.preventDefault();
+            $("#divEstado").html("<strong>Click derecho</strong>");
+        });
+        $(document).on("click", function (e){   // Evento click izquierdo
+            $("#divEstado").html("<strong>Click izquierdo</strong>");
+        });
+        $("#divScroll").on("scroll", function (e){   // Evento scroll
+            $("#divEstado").html("<strong>Scroll detectado</strong>");
+        });
+    });
+</script>
+
+<style type="text/css">
+#divScroll{
+    margin:20px 0;
+    padding: 10px;
+    height: 100px;
+    overflow-y: scroll;
+    border-radius: 5px;
+    box-shadow: 1px 1px 10px #C0C0C0;
+    float: right;
+}
+#divCoordenadas{
+    border: solid 1px #CCC;
+    padding: 10px;
+    width: 200px;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow: 1px 1px 10px #C0C0C0;
+    float: left;
+}
+#divEstado{
+    padding: 10px;
+    width: 200px;
+    text-align: center;
+    border-radius: 5px;
+    box-shadow: 1px 1px 10px #C0C0C0;
+    float: right;
+}
+</style>
+</head>
+
+<body>
+<div id="divCoordenadas"></div>
+<div id="divEstado"></div>
+<div id="divScroll">
+    <p> El Departamento Empresa-Escuela de Salesianos Zaragoza refuerza su compromiso con la capacitación
+        profesional mediante el diseño de cursos específicos que responden a las demandas reales del mercado
+        laboral.
+        Una de estas iniciativas es este curso de Soldadura dirigido a trabajadores de una empresa zaragozana,
+        pensado
+        para actualizar y ampliar sus competencias en un ámbito clave para el sector industrial.</p>
+
+    <p> El programa, completamente adaptado a las necesidades de la empresa, incluye un enfoque práctico que permite
+        a
+        los participantes aplicar las técnicas de soldadura TIG y por electrodo.</p>
+
+    <p> La oferta formativa del Departamento Empresa-Escuela no se limita a la soldadura. Las posibilidades son muy
+        amplias e incluyen cursos en áreas como mecanizado, automatización, electricidad, diseño asistido por
+        ordenador,
+        y mucho más. Estas formaciones pueden diseñarse a medida para dar solución a las necesidades de sectores
+        industriales diversos, garantizando un aprendizaje práctico.</p>
+
+    <p> Por Redacción Zaragoza.</p>
+
+    <p> El pasado 11 de noviembre, José Daniel Sánchez, estudiante de 2º curso de Grado Superior en Desarrollo de
+    Aplicaciones Multiplataforma, supo que había conseguido el primer puesto en un hackathon, en el que había
+    participado, organizado por CaixaBank Tech. Este tipo de eventos colaborativos reúne a programadores,
+    diseñadores y profesionales del desarrollo de software y hardware, quienes aportan soluciones innovadoras a
+    retos específicos en un tiempo determinado.</p>
+
+    <p> José Daniel nos comparte su experiencia y el proceso detrás de su logro: </p>
+
+    <p> -«Conocí el hackathon justo el día anterior, cuando recibí un correo del centro avisando sobre el evento. Como
+    coincidió que tenía libre ese fin de semana, decidí apuntarme pensando que los retos solo durarían unas 8 horas
+    y viéndolo como una buena oportunidad para poner a prueba mis habilidades. </p>
+
+    <p> El hackatón consistía en desarrollar un backend completo diseñado por el equipo de CaixaBank Tech. Participé en
+    la categoría de Java, lo que implicaba trabajar con el framework SpringBoot (que, de hecho, era la primera vez
+    que utilizaba). Algunas de las funcionalidades que debía implementar en el backend incluían gestión de usuarios,
+    cuentas bancarias, un bot de trading, suscripciones, entre otros. Aunque los retos resultaron bastante
+    complejos, logré completarlos después de dos días de intenso trabajo. </p>
+
+    <p> Finalmente, conseguí quedar en primer lugar, a pesar de la competencia, que era muy numerosa (más de 1.700
+    participantes), incluyendo ingenieros y profesionales en activo.Recomiendo a todos participar en este tipo de
+    eventos. Aunque no siempre se gana, el simple hecho de intentarlo y esforzarse para que todo funcione es una
+    gran oportunidad de aprendizaje.»- </p>
+
+</div>
+</body>
+
+</html>

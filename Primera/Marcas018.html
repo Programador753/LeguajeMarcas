@@ -1,0 +1,44 @@
+<html>
+<head>
+	<title>Calculadora ejercicio de examen</title>
+
+    <script>
+        function calcular()
+        {
+            switch(operador.value)
+            {
+                case "+" : 
+                    resultado.innerText = parseFloat(numero1.value) + parseFloat(numero2.value);
+                    break;
+                case "-" : 
+                    resultado.innerText = parseFloat(numero1.value) - parseFloat(numero2.value);
+                    break;
+                case "*" :
+                    resultado.innerText = parseFloat(numero1.value) * parseFloat(numero2.value);
+                    break;
+                case "/" :
+                    resultado.innerText = parseFloat(numero1.value) / parseFloat(numero2.value);
+                    break;
+            }
+        }
+    </script>
+</head>
+<body>
+<table align="center" border="1">
+    <tr>
+        <td><input type="text" id="numero1"></td>
+        <td>
+            <select id="operador">
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">*</option>
+                <option value="/">/</option>
+            </select>
+        </td>
+        <td><input type="text" id="numero2"></td>
+        <td><button onclick="calcular()">Calcular</button></td>
+        <td id="resultado" width="100"></td>
+    </tr>
+</table>
+</body>
+</html>

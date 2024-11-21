@@ -1,0 +1,139 @@
+<html>
+<head>
+	<title>Pagina de los números</title>
+<style type="text/css">
+div {
+	position: absolute;
+}
+a {
+	font-family: sans-serif;
+	font-weight: bold;
+	text-decoration: none;
+	font-size: 62;
+}
+#cero { color: red;}
+#uno { color: lime;}
+#dos { color: blue;}
+#tres { color: red;}
+#cuatro { color: magenta;}
+#cinco { color: blue;}
+#seis { color: goldenrod;}
+#siete { color: black;}
+#ocho { color: silver;}
+#nueve { color: orange;}
+h3 { 
+	color: red;
+	font-family: sans-serif;
+	text-align: center;
+	margin-top: 5;
+	margin-bottom: 5;
+}
+p{
+	margin-left: 10;
+	margin-right: 10;
+	text-align: justify;
+	font-size: 12pt;
+	font-family: arial;
+	font-weight: bold;
+}
+.pregunta {
+	position: absolute;
+	left: 150;
+	top: 80;
+	width: 300;
+	height: 200;
+	border-width: 6;
+	border-style: groove;
+	border-color: lime;
+	margin-top: 10;
+}
+</style>
+<script language="JavaScript">
+var actual = 1;
+var respuestas = [7, 8, 2, 0];
+var acertadas = [0, 0, 0, 0];
+function pasar()
+{
+	if (((event.key == 's') || (event.key == 'S')) && actual < 6)// || operador lógico OR
+	{
+		document.getElementById("pagina" + actual).style.visibility = "hidden";
+		actual++;
+		document.getElementById("pagina" + actual).style.visibility = "visible";
+	}
+	if (((event.key == 'a') || (event.key == 'A')) && actual > 1) 
+	{
+		document.getElementById("pagina" + actual).style.visibility = "hidden";
+		actual--;
+		document.getElementById("pagina" + actual).style.visibility = "visible";
+	}
+}
+function responder(numero) // Funcion para que responda a las 4 preguntas y segun si ha respondido a todas bien o no le salga un mensaje u otro.
+{
+	if((numero == respuestas[actual - 3]) && (actual > 2))
+	{
+		acertadas[actual - 3] = 1;
+		cont=0;
+		while((acertadas[cont] == 1) && (cont < acertadas.length))
+			cont++;
+		if(cont == 4)
+			alert("Eres un fenómeno");
+	}
+}
+
+</script>   
+</head>
+<body onkeypress="pasar()" >
+<div style="left: 200; top: 0;">
+	<a href="" onclick="responder(0); return false" id="cero">0</a>
+</div>
+<div style="left: 20; top: 75;">
+	<a href="" onclick="responder(1); return false" id="uno">1</a>
+</div>
+<div style="left: 480; top: 100;">
+	<a href="" onclick="responder(2); return false" id="dos">2</a>
+</div>
+<div style="left: 100; top: 125;">
+	<a href="" onclick="responder(3); return false" id="tres">3</a>
+</div>
+<div style="left: 550; top: 150;">
+	<a href="" onclick="responder(4); return false"  id="cuatro">4</a>
+</div>
+<div style="left: 10; top: 175;">
+	<a href="" onclick="responder(5); return false" id="cinco" >5</a>
+</div>
+<div style="left: 475; top: 200;">
+	<a href="" onclick="responder(6); return false" id="seis">6</a>
+</div>
+<div style="left: 100; top: 225;">
+	<a href="" onclick="responder(7); return false" id="siete">7</a>
+</div>
+<div style="left: 25; top: 300;">
+	<a href="" onclick="responder(8); return false" id="ocho">8</a>
+</div>
+<div style="left: 500; top: 300;">
+	<a href="" onclick="responder(9); return false" id="nueve">9</a>
+</div>
+
+<div id="pagina1" class="pregunta">
+	<h3>¡Bienvenido a la página de los números!</h3>
+	<p>Para cambiar de página, pulsa la tecla "s/S" para pasar a la siguiente pregunta y para la tecla "a/A" para retroceder</p>
+</div>
+<div id="pagina2" class="pregunta" style="visibility: hidden;">
+	<p>Para entrar en la página de los números, tendrás que averiguar la combinación de acceso</p>
+	<p>Se formularán 4 preguntas. Para hallar la combinación de acceso, haz click sobre el número que responda 
+		a cada pregunta. Cuando tengas las cuatro, habrás encontrado la <strong>clave</strong> de entrada.</p>
+</div>
+<div id="pagina3" class="pregunta" style="visibility: hidden;">
+	<p>Tengo 18 años, réstale 3, después suma 6 y por último divide por 3. ¿Que cifra sale?</p>
+</div>
+<div id="pagina4" class="pregunta" style="visibility: hidden;">
+	<p>Si cortas una manzana por la mitad, después cortas cada mitad de nuevo en dos y cada una de estas mitades de nuevo en dos, ¿Cuántos trozos de manzanas tendrías?</p>
+</div>
+<div id="pagina5" class="pregunta" style="visibility: hidden;">
+	<p>Igual que 16 es a hexadecimal y 8 es octal, este número es a binario</p> 
+</div>
+<div id="pagina6" class="pregunta" style="visibility: hidden;">
+	<p>Multiplícame o divídeme, pero siempre seré yo. ¿Que número soy? </p>
+</div>
+</body>
+</html>

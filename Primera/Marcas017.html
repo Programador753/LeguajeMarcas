@@ -1,0 +1,29 @@
+<html>
+<head>
+	<title>Reloj Digital</title>
+
+<script language="JavaScript">
+var intervalo;
+function reloj()
+{
+    var fecha = new Date();
+    var horaStr = "";
+    horaStr = ((fecha.getHours() < 10)?"0":"") + fecha.getHours() + ":";
+    horaStr += ((fecha.getMinutes() < 10)?"0":"") + fecha.getMinutes() + ":";
+    horaStr += ((fecha.getSeconds() < 10)?"0":"") + fecha.getSeconds();
+    cadena.value = horaStr;
+    
+}
+function parar()
+{
+    clearInterval(intervalo)
+}
+</script>   
+</head>
+<body onload="intervalo = setInterval('reloj()',1000)" align="center">
+    <h1>Reloj Digital</h1>
+    <input id="cadena" size="8">
+    <br><br>
+    <input type="button" onclick="parar()" value = "Parar el reloj" ></input>
+</body>
+</html>

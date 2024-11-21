@@ -1,0 +1,41 @@
+<html>
+<head>
+	<title>Guillermo Tell</title>
+<style type="text/css">
+img
+{
+    position: absolute;
+}
+</style>
+<script language="JavaScript">
+function moverR()
+{
+    robin.style.top = event.y-75;
+}
+function moverG()
+{
+    if (parseInt(globo.style.top) == -100)
+        globo.style.top = 800;
+    globo.style.top = parseFloat(globo.style.top) -0.3;
+    flecha.style.left = parseFloat(flecha.style.left) +10;
+    
+}
+function disparar() // Función que se ejecuta al hacer clic en la pantalla y debe salir la flecha del arco
+{
+    flecha.style.left = 80;
+    flecha.style.top = robin.style.top;
+    flecha.style.top = parseFloat(flecha.style.top) +10;
+    if (parseInt(flecha.style.top) < parseInt(globo.style.top) +50 && parseInt(flecha.style.top) > parseInt(globo.style.top) -50)
+    {
+        alert("¡Has acertado!");
+        clearInterval(intervalo);
+    }
+}
+</script>
+</head>
+<body onmousemove="moverR()" onload="intervalo = setInterval('moverG()',1)" onclick="disparar()">
+<img src="imagenes/robin.jpg" id="robin" height="150" style="left: 20px">
+<img src="imagenes/globo.png" id="globo" style="left: 1300; top: 800; width: 50;">
+<img src="imagenes/flecha.png" id="flecha" style="left:80px; top: -100px; width: 50;">
+</body>
+</html>
