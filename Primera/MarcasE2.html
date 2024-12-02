@@ -1,0 +1,93 @@
+<html>
+
+<head>
+    <title>Tabla con imágenes</title>
+    <style type="text/css">
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            border: 1px solid black;
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .selected {
+            border: 3px solid blue;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+    <script language="JavaScript">
+        var selectedImage = null; // Variable para guardar la imagen seleccionada
+
+        // Función para seleccionar una imagen
+        function selectImage(event) {
+            var images = document.querySelectorAll("img");
+            for (var i = 0; i < images.length; i++) {
+                images[i].className = ""; // Quitar selección previa
+            }
+            event.srcElement.className = "selected"; // Marcar imagen seleccionada
+            selectedImage = event.srcElement.src; // Guardar la ruta de la imagen seleccionada
+        }
+
+        // Función para colocar la imagen en una celda
+        function placeImage(event) {
+            if (event.srcElement.tagName == "TD" && selectedImage) {
+                event.srcElement.innerHTML = "<img src='" + selectedImage + "'>";
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h1 align="center">Tabla interactiva con imágenes</h1>
+
+    <!-- Tabla de celdas vacías -->
+    <table align="center" border="1" cellspacing="5" onclick="placeImage(event)">
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    </table>
+
+    <br><br>
+
+    <!-- Fila de imágenes seleccionables -->
+    <table align="center" border="1" cellspacing="5">
+        <tr>
+            <td><img src="imagenes/Fondo1.jpeg" onclick="selectImage(event)" alt="Imagen 1"></td>
+            <td><img src="imagenes/Fondo2.jpeg" onclick="selectImage(event)" alt="Imagen 2"></td>
+            <td><img src="imagenes/Fondo3.jpeg" onclick="selectImage(event)" alt="Imagen 3"></td>
+            <td><img src="imagenes/Fondo4.jpeg" onclick="selectImage(event)" alt="Imagen 4"></td>
+        </tr>
+    </table>
+</body>
+
+</html>

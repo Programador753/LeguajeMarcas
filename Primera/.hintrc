@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "development"
+  ],
+  "hints": {
+    "axe/language": "off",
+    "meta-viewport": "off",
+    "meta-charset-utf-8": "off",
+    "axe/forms": "off",
+    "axe/text-alternatives": "off",
+    "no-inline-styles": "off",
+    "axe/name-role-value": "off",
+    "axe/structure": "off"
+  }
+}

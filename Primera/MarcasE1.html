@@ -1,0 +1,36 @@
+<html>
+
+<head>
+    <title>Eventos de ratón</title>
+    <style type="text/css">
+        img {
+            position: absolute
+        }
+
+        input {
+            position: absolute
+        }
+    </style>
+    <script language="JavaScript">
+        var numero = 1;
+        function anterior() {
+            numero++;
+            if (numero > 4) numero = 0;
+            imagen.src = "imagenes/Fondo" + numero + ".jpeg";
+        }
+        function siguiente() {
+            numero--;
+            if (numero == 0) numero = 4;
+            imagen.src = "imagenes/Fondo" + numero + ".jpeg";
+        }
+    </script>
+</head>
+
+<body>
+    <img src="imagenes/Fondo1.jpeg" id="imagen" width="150" style="left: 400px; top: 50">
+    <input type="button" value="anterior" style="left: 400px; top: 300;" onclick="anterior()">
+    <input type="button" value="siguiente" style="left: 475px; top: 300;" onclick="siguiente()">
+    </div>
+</body>
+
+</html>
