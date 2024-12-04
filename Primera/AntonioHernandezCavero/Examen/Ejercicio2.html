@@ -1,0 +1,68 @@
+<html>
+<head>
+	<title>RGB</title>
+<!--
+Crear una web en la que haya 3 “inputs”, uno para el rojo, otro para el verde y el tercero para el azul,
+  en los que el usuario pueda meter valores entre 0 y 255.  En la parte de abajo crearás un párrafo y modificarás su color 
+  de fondo con los valores de los “inputs”, cuando pulses un botón. (3,5 puntos)
+ -->
+<style type="text/css">
+   #aplicar{
+
+        background-color: blue;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    #parrafo{
+        width: 200px;
+        height: 400px;
+        background-color: white;
+        border: 1px solid #000;
+        border-radius: 5px;
+        position: relative;
+        left: 38%;
+
+    }
+    .area{
+        width: 800px;
+        margin: 0 auto;
+        text-align: center;
+        top: 25%;
+        left: 25%;
+        border: 1px solid #000;
+        border-radius: 5px;
+        position: absolute;
+
+    }
+
+</style>
+<script language="JavaScript">
+    function cambiar(){
+        var rojo = document.getElementById("rojo").value;
+        var verde = document.getElementById("verde").value;
+        var azul = document.getElementById("azul").value;
+        var parrafo = document.getElementById("parrafo");
+        parrafo.style.backgroundColor = "rgb("+rojo+","+verde+","+azul+")";
+        document.getElementById("color").innerText = "rgb("+rojo+","+verde+","+azul+")";
+    }
+</script>
+<body>
+    <div class="area">
+        <h1>RGB</h1>
+        <label for="rojo">Red</label><input type="text" id="rojo" value="0">
+        <label for="verde">Green:</label><input type="text" id="verde" value="0">
+        <label for="azul">Blue:</label><input type="text" id="azul" value="0">
+        <br><br>
+        <button id="aplicar" onclick="cambiar()">Aplicar Color</button>
+        <br><br>
+        <p id="parrafo"></p>
+        <br><br>
+        <p>
+            Color Actual: <span id="color"></span>
+
+        </p>
+    </div>
+</body>
+</html>

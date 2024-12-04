@@ -1,0 +1,57 @@
+<html>
+<head>
+	<title>Mover imagen con teclas del teclado </title>
+
+<style type="text/css">
+    .area{
+        position: absolute;
+        left: 25%;
+        top: 25%;
+        width: 500px;
+        height: 500px;
+        border: solid 1px black;
+    }
+    #avion{
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+</style>
+<script language="JavaScript">
+    function mover(e)
+    {
+        var avion = document.getElementById("avion");
+        var x = avion.offsetLeft;
+        var y = avion.offsetTop;
+        var tecla = e.keyCode;
+        var limiteX = 500 - avion.width;
+        var limiteY = 500 - avion.height;
+        switch(tecla)
+        {
+            case 37: //izquierda
+                if(x > 0)
+                    avion.style.left = x - 10 + "px";
+                break;
+            case 38: //arriba
+                if(y > 0)
+                    avion.style.top = y - 10 + "px";
+                break;
+            case 39: //derecha
+                if(x < limiteX)
+                    avion.style.left = x + 10 + "px";
+                break;
+            case 40: //abajo
+                if(y < limiteY)
+                    avion.style.top = y + 10 + "px";
+                break;
+        }
+
+    }
+
+</script>
+<body onkeydown="mover(event)">
+<div class="area" >
+    <img id="avion" src="avion.jpg" width="50" height="50" >
+</div>
+</body>
+</html>

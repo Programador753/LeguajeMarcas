@@ -1,0 +1,85 @@
+<html>
+<head>
+	<title>Mover imagen con teclas del teclado </title>
+<!-- 
+    Crea una web en la que tienes 4 imágenes en una tabla vertical de 4*1 celdas. 
+    Cada celda contiene una imagen. A la derecha tienes otra tabla de 4*1 vacía.
+     Cada vez que hagas click en una imagen de la izquierda, esta pasará a la tabla de la derecha (aunque no en su misma posición) 
+     y desaparecerá de la tabla de la izquierda. (3,5 puntos)
+ -->
+<style type="text/css">
+    #origen {
+        width: 800px;
+        height: 800px;
+        position: absolute;
+        top: 5%;
+        left: 10%;
+    }
+    #destino {
+        width: 800px;
+        height: 800px;
+        position: absolute;
+        top: 5%;
+        left: 60%;
+    }
+    td {
+        border: 1px solid black;
+        width: 100px;
+        height: 100px;
+        text-align: center;
+        vertical-align: middle;
+    }
+    tr {
+        height: 100px;
+    }
+    img {
+        max-width: 50%;
+    }
+</style>
+<script language="JavaScript">
+    var selectedImage = null; // Variable para guardar la imagen seleccionada
+    function colocarImagen(event) {
+        if (event.srcElement.tagName == "IMG") {
+            var img = event.srcElement;
+            var td = document.querySelectorAll("td");
+            for (var i = 0; i < td.length; i++) {
+                if (td[i].innerHTML == "") {
+                    td[i].innerHTML = "<img src='" + img.src + "'>";
+                    img.src = "";
+                    break;
+                }
+            }
+        }
+    }
+</script>
+<body onclick="colocarImagen(event)">
+    <table id="origen">
+        <tr>
+            <td><img src="Fondo1.jpeg" ></td>
+        </tr>
+        <tr>
+            <td><img src="Fondo2.jpeg" ></td>
+        </tr>
+        <tr>
+            <td><img src="Fondo3.jpeg" ></td>
+        </tr>
+        <tr>
+            <td><img src="Fondo4.jpeg" ></td>
+        </tr>
+    </table>
+    <table id="destino" >
+        <tr>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -25,11 +25,13 @@ function disparar() // Función que se ejecuta al hacer clic en la pantalla y de
     flecha.style.left = 80;
     flecha.style.top = robin.style.top;
     flecha.style.top = parseFloat(flecha.style.top) +10;
-    if (parseInt(flecha.style.top) < parseInt(globo.style.top) +50 && parseInt(flecha.style.top) > parseInt(globo.style.top) -50)
+    if (parseFloat(flecha.style.top) > parseFloat(globo.style.top) && parseFloat(flecha.style.top) < parseFloat(globo.style.top) +50)
     {
-        alert("¡Has acertado!");
+        alert("¡Has dado en el blanco!");
         clearInterval(intervalo);
     }
+    
+    
 }
 </script>
 </head>
