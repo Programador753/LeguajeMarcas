@@ -8,7 +8,13 @@
             var imagen = $("<img>", {
                 src: "./imagenes/Fondo0.jpeg",
                 id: "imagen",
-                css: { "padding": "2px", "cursor": "pointer" }
+                css: { "padding": "2px", "cursor": "pointer" },
+                click:function(e){
+                    document.location="JQuery007.html";
+                }
+            });
+            $("#boton").click(function () {
+                $("body").append(imagen);
             });
             
         });
