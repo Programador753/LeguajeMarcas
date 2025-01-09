@@ -17,6 +17,12 @@
                 textAlign: "center",
                 color: "blue"
             });
+            $("#boton").click(function(){
+                $("#caja").slideUp(3000, function(){
+                    $("#caja").slideDown(3000);
+                });
+
+            });
         });
     </script>
 <style type="text/css">
@@ -24,6 +30,7 @@
 </style>
 </head>
 <body>
-<div id="caja">Bienvenidos al aula de 1H</div>
+    <input type="button" id="boton" value="Empezar">
+    <div id="caja">Bienvenidos al aula de 1H</div>
 </body>
 </html>
