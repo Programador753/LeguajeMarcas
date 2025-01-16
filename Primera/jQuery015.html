@@ -6,7 +6,16 @@
     <link rel="stylesheet" type="text/css" href="jquery015.css">
     <script type="text/javascript">
         $(document).ready(function(){
-            
+            $(".contenedor div").hide();
+            $(".contenedor div:first").show();
+            $("ul.tabs li:first").addClass("activa");
+            $("ul.tabs li").click(function(){
+                $("ul.tabs li ").removeClass("activa");
+                $(this).addClass("activa");
+                $(".contenedor div").hide();
+                var activatab = $(this).find("a").attr("href");
+                $(activatab).show();
+            });
         });
     </script>
 <style type="text/css">
@@ -18,10 +27,10 @@
         <tr>
             <td>
                 <ul class="tabs">
-                    <li>Menu 1</li>
-                    <li>Menu 2</li>
-                    <li>Menu 3</li>
-                    <li>Menu 4</li>
+                    <li><a href="#tab1">Menú 1</a></li>
+                    <li><a href="#tab2">Menú 2</a></li>
+                    <li><a href="#tab3">Menú 3</a></li>
+                    <li><a href="#tab4">Menú 4</a></li>
                 </ul>
                 <div class="contenedor">
                     <div id="tab1">
