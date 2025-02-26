@@ -1,0 +1,54 @@
+<html>
+<!-- 
+Crear una página HTML con una lista de elementos (<ul> con varios <li>). Luego, utilizando jQuery:
+Al hacer clic en un elemento de la lista, debe cambiar su color de fondo a amarillo.
+Si se vuelve a hacer clic en el mismo elemento, debe volver a su color inicial.
+Agrega un botón que, al pulsarlo, oculte todos los elementos de la lista que estén resaltados en amarillo.
+-->
+<head>
+<title>Ejercicio1 MARCAS (26/02/2025)</title>
+<script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+
+<script language="JavaScript">
+    $(document).ready(function(){
+        $("#lista li").click(function(){
+            $(this).toggleClass("selecciondas");
+        });
+
+        $("#borrarSeleccionadas").click(function(){
+            $("#lista li.selecciondas").remove();
+        });
+    });
+</script>
+
+<style type="text/css">
+    .selecciondas {
+        background-color: yellow;
+    }
+    ul {
+        list-style-type: none; /* Quitamos los puntos de la lista */
+        margin: 0px;
+        padding: 0px;
+    }
+    li{
+        padding: 7px;
+        cursor: pointer;
+        border: 1px solid black;
+        margin: 5px;
+    }
+</style>
+</head>
+
+<body>
+    <ul id="lista">
+        <li>Elemento 1</li>
+        <li>Elemento 2</li>
+        <li>Elemento 3</li>
+        <li>Elemento 4</li>
+        <li>Elemento 5</li>
+        <br>
+        <button id="borrarSeleccionadas">Eliminar Seleccionadas</button>
+    </ul>
+</body>
+
+</html>

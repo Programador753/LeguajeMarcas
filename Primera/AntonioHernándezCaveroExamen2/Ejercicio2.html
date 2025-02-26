@@ -1,0 +1,55 @@
+<html>
+<!-- 
+Crea una página web con un div de 200x200 píxeles que tenga un borde negro y un color de fondo rojo al inicio. Además, coloca en la parte superior tres botones de color rojo, azul y verde.
+Cuando se haga clic en un botón, el div debe desaparecer poco a poco en 2 segundos.
+Una vez que el div haya desaparecido, tiene que volver a aparecer pero con el color de fondo del botón que has pulsado en otros 2 segundos.
+-->
+
+<head>
+    <title>Ejercicio2 MARCAS (26/02/2025)</title>
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+
+    <script language="JavaScript">
+        $(document).ready(function () {
+            $("#red").click(function(){
+                $("#cuadro").fadeOut(2000, function() {
+                    $(this).css("background-color", "red").fadeIn(2000);
+                });
+            });
+            $("#blue").click(function(){
+                $("#cuadro").fadeOut(2000, function() {
+                    $(this).css("background-color", "blue").fadeIn(2000);
+                });
+            });
+            $("#green").click(function(){
+                $("#cuadro").fadeOut(2000, function() {
+                    $(this).css("background-color", "green").fadeIn(2000);
+                });
+            });
+        });
+    </script>
+
+    <style type="text/css">
+        input{
+            margin: 7px;
+            height: 30px;
+        }
+        #cuadro {
+            background-color: red;
+            height: 200px;
+            width: 200px;
+            border: 2px solid black;
+        }
+
+    </style>
+</head>
+
+<body>
+    <input type="button" id="red" value="Rojo" style="background-color: red;" >
+    <input type="button" id="blue" value="Azul" style="background-color: blue;">
+    <input type="button" id="green" value="Verde" style="background-color: green;">
+    <br>
+    <div id="cuadro"></div>
+</body>
+
+</html>
