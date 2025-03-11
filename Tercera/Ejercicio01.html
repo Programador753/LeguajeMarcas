@@ -1,0 +1,44 @@
+<html>
+<head>
+    <title>Marcas HTML 5 para un formulario</title>
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+    <script language="javascript">
+        function mostrarEdad(valor){
+            edadValor.innerHTML = valor;
+        }
+    </script>
+</head>
+<body>
+<form action="">
+    <p>
+        Nombre: <input type="text" name="nombre" id="nombre" autofocus required>
+    </p>
+    <p>
+        E-mail: <input type="email" name="email" id="email" placeholder="Introduce tu e-mail">
+    </p>
+    <p>
+        Edad:<input type="range" name="edad" id="edad" min="18" max="70" value="35" onchange="mostrarEdad(this.value)"><span id="edadValor">35</span>
+    </p>
+    <p>
+        Color favorito: <input type="color" name="color" id="color">
+    </p>
+    <p>
+        Web: <input type="url" name="web" id="web" autocomplete="on">
+    </p>
+    <p>
+        Número par del 0 al 10: <input type="number" name="par" id="par" min="0" max="10" step="2">
+    </p>
+    <p>
+        Destinatario: <input type="email" name="destinatario" id="destinatario" list="destinatarios" required> 
+        <datalist id="destinatarios">
+            <option value="admin@salesianos.edu">Administrador</option>
+            <option value="agustin.sole@salesianos.edu">Agustín Solé</option>
+            
+        </datalist>
+    </p>
+    <p>
+        <input type="submit" value="Enviar">
+    </p>
+</form>
+</body>
+</html>
