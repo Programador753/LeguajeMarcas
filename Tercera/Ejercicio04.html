@@ -1,0 +1,35 @@
+<html>
+
+<head>
+    <title>SessionStorage</title>
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+
+    <script>
+        window.onload = mostrar;
+
+        function mostrar() {
+            contenido.innerHTML = sessionStorage.length;
+            sessionStorage.setItem("Antonio", 20);
+            contenido.innerHTML = sessionStorage.length;
+            contenido.innerHTML += "<br>" + sessionStorage.key(0);
+            contenido.innerHTML += "<br>" + sessionStorage.getItem("Antonio");
+            sessionStorage["Pedro"] = 22;
+            contenido.innerHTML += "<br>" + sessionStorage.length;
+            contenido.innerHTML += "<br>" + sessionStorage.key(1);
+            contenido.innerHTML += "<br>" + sessionStorage.getItem("Pedro");
+            sessionStorage.removeItem("Antonio");
+            contenido.innerHTML += "<br>" + sessionStorage.length;
+            contenido.innerHTML += "<br>" + sessionStorage.key(0);
+            contenido.innerHTML += "<br>" + sessionStorage.key(1);
+            sessionStorage.clear();
+            contenido.innerHTML += "<br>" + sessionStorage.length;
+
+        }
+    </script>
+</head>
+
+<body>
+    <div id="contenido"></div>
+</body>
+
+</html>

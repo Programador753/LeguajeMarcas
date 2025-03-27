@@ -46,3 +46,14 @@ function insertarimg(){
     window.document.execCommand('insertImage', false, img);
     
 }
+
+function hipervinculo(){
+    var url = prompt("Introduce la URL: ", "http://");
+    window.document.execCommand('createLink', false, url);
+    
+}
+
+function publicar(){
+    var cont = document.getElementById("contenido").innerHTML;
+    document.getElementById("Mensajes").innerHTML = cont;
+}
