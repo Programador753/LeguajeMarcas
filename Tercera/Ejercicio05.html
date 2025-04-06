@@ -5,11 +5,37 @@
     <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
     <link rel="stylesheet" href="Estilos3.css" type="text/css" />
     <script>
-        window.onload = mostrar;
-
         function mostrar(){
-
+            if(sessionStorage.length == 0){
+                cesta.innerHTML = "<h5>Carrito vacío</h5>";
+            } else {
+                cesta.innerHTML = "<table class=pro width='90%'><tr><th>Producto</th><th>Cantidad</th><th>Eliminar</th></tr></table>";
+                for(i=0; i<sessionStorage.length; i++){
+                    cesta.innerHTML += "<table class=pro width='90%'><tr><td>" + sessionStorage.key(i) + "</td><td>" + sessionStorage.getItem(sessionStorage.key(i)) + "</td><td><input type='button' value='Eliminar' onclick='eliminar(\"" + sessionStorage.key(i) + "\")'></td></tr></table>";
+                }
+            }
         }
+
+        function eliminar(codigo){
+            if (sessionStorage.getItem(codigo) == 1) {
+                sessionStorage.removeItem(codigo);
+            } else {
+                let cantidad = parseInt(sessionStorage.getItem(codigo)) - 1;
+                sessionStorage.setItem(codigo, cantidad);
+            }
+            mostrar();
+        }
+
+        function almacenar(codigo){
+            if (sessionStorage.getItem(codigo) == null) {
+                sessionStorage.setItem(codigo, 1);
+            } else {
+                let cantidad = parseInt(sessionStorage.getItem(codigo)) + 1;
+                sessionStorage.setItem(codigo, cantidad);
+            }
+            mostrar();
+        }
+        
     </script>
 </head>
 
@@ -22,30 +48,36 @@
                 <tr>
                     <td><img src="imagenes/asus.webp"></td>
                     <td><span id="d1">Portátil ASUS TUF Gaming A15</span></td>
-                    <td><input type="button" value="Comprar" id="b1"></td>
+                    <td><input type="button" value="Comprar" id="b1" onclick="almacenar('ASUS')"></td>
                 </tr>
                 <tr>
                     <td><img src="imagenes/amd.webp"></td>
                     <td><span id="d2">Procesador AMD Ryzen 7 9800X3D 4.7/5.2GHz</span></td>
-                    <td><input type="button" value="Comprar" id="b2"></td>
+                    <td><input type="button" value="Comprar" id="b2" onclick="almacenar('AMD')"></td>
                 </tr>
                 <tr>
                     <td><img src="imagenes/monitor.webp"></td>
                     <td><span id="d3">Monitor AOC 24G4XE 23.8" LED Fast IPS FullHD 180Hz G-Sync Compatible</span></td>
-                    <td><input type="button" value="Comprar" id="b3"></td>
+                    <td><input type="button" value="Comprar" id="b3" onclick="almacenar('MONITOR')"></td>
                 </tr>
                 <tr>
                     <td><img src="imagenes/grafica.webp"></td>
                     <td><span id="d4">MSI GeForce RTX 4060 VENTUS 2X BLACK OC 8GB GDDR6 DLSS3</span></td>
-                    <td><input type="button" value="Comprar" id="b4"></td>
+                    <td><input type="button" value="Comprar" id="b4" onclick="almacenar('GRAFICA')"></td>
                 </tr>
                 <tr>
                     <td><img src="imagenes/sobremesa.webp"></td>
                     <td><span id="d5">Ordenador Sobremesa PcCom Ready Intel Core i5-12400F / 32 GB / 1TB SSD / RTX 4060</span></td>
-                    <td><input type="button" value="Comprar" id="b5"></td>
+                    <td><input type="button" value="Comprar" id="b5" onclick="almacenar('SOBREMESA')"></td>
                 </tr>
             </table>
         </div>
+        <div id="carrito">
+            <h4>Carrito de la compra</h4>
+            <div id="cesta"></div>
+            <div id="total"></div>
+        </div>
+        <div id="pie"></div>
     </div>
 </body>
 
