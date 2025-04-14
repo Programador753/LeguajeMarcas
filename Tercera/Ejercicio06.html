@@ -1,0 +1,84 @@
+<html>
+
+<head>
+    <title>Formulario para insertar un contacto en IndexDB</title>
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+    <!-- <link rel="stylesheet" href="" type="text/css" /> -->
+
+</head>
+
+<body>
+    <h1>insertar contacto</h1>
+    <form id="contactoForm" >
+        <label for="id">ID:</label>
+        <input id="id" name="id" required><br>
+        <label for="nombre">Nombre:</label>
+        <input id="nombre" name="nombre" required><br>
+        <button type="submit">Enviar</button>
+    </form>
+    <div id="resultado">
+        <h2>Resultado:</h2>
+        <p id="resultadoTexto">
+
+        </p>
+    </div>
+
+</body>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dbName = "contactos";
+    const dbVersion = 1;
+
+    const openDatabase = () => {
+        return new Promise((resolve, reject) => {
+            const request = window.indexedDB.open(dbName, dbVersion);
+
+            request.onerror = (event) => reject(event.target.errorCode);
+            request.onsuccess = (event) => resolve(event.target.result);
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains("contactos")) {
+                    const objectStore = db.createObjectStore("contactos", { keyPath: "id" });
+                    objectStore.createIndex("nombre", "nombre", { unique: false });
+                }
+            };
+        });
+    };
+
+    const insertContacto = async (contacto) => {
+        try {
+            const db = await openDatabase();
+            const transaction = db.transaction(["contactos"], "readwrite");
+            const objectStore = transaction.objectStore("contactos");
+            const addRequest = objectStore.add(contacto);
+
+            addRequest.onsuccess = () => {
+                document.getElementById("resultadoTexto").innerText = `Contacto insertado con éxito: ${JSON.stringify(contacto)}`;
+            };
+
+            addRequest.onerror = (event) => {
+                document.getElementById("resultadoTexto").innerText = `Error al insertar el contacto: ${event.target.errorCode}`;
+            };
+        } catch (error) {
+            document.getElementById("resultadoTexto").innerText = `Error al abrir la base de datos: ${error}`;
+        }
+    };
+
+    document.getElementById("contactoForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("id").value;
+        const nombre = document.getElementById("nombre").value;
+
+        if (id && nombre) {
+            const contacto = { id, nombre };
+            await insertContacto(contacto);
+        } else {
+            document.getElementById("resultadoTexto").innerText = "Por favor, complete todos los campos.";
+        }
+    });
+});
+
+</script>
+
+</html>
