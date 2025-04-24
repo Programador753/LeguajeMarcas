@@ -1,0 +1,94 @@
+<html>
+
+<head>
+    <title>Leer de la base de datos indexedDB (Versión 2)</title>
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+    <!-- <link rel="stylesheet" href="" type="text/css" /> -->
+
+</head>
+
+<body>
+    <h1>Contactos</h1>
+    <table id="contactosTable" border="1" cellspacing="0" cellpadding="5">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+            </tr>
+        </thead>
+        <tbody >
+        </tbody>
+    </table>
+</body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dbName = "contactos"; // Nombre de la base de datos
+        const dbVersion = 1; // Versión de la base de datos
+
+        const openDatabase = () => { // Función para abrir la base de datos
+            return new Promise((resolve, reject) => { // Retorna una promesa que se resuelve o se rechaza para manejar el resultado de la operación
+                const request = window.indexedDB.open(dbName, dbVersion); // Abre la base de datos con el nombre y versión especificados
+
+                request.onerror = (event) => reject(event.target.errorCode); // Maneja el error si ocurre al abrir la base de datos
+
+                request.onsuccess = (event) => resolve(event.target.result); // Si la base de datos se abre correctamente, resuelve la promesa con el resultado
+
+                request.onupgradeneeded = (event) => { // Si la base de datos necesita ser actualizada (creada o modificada) 
+                    const db = event.target.result; // Obtiene la instancia de la base de datos
+                    if (!db.objectStoreNames.contains("contactos")) { // Verifica si el almacén de objetos "contactos" no existe
+                        const objectStore = db.createObjectStore("contactos", { keyPath: "id" }); // Crea un nuevo almacén de objetos "contactos" con la clave primaria "id"
+                    }
+                };
+
+
+            });
+        };
+
+        // Función para leer los contactos de la base de datos
+        const readContacts = (db) => { // Recibe la instancia de la base de datos como parámetro
+            return new Promise((resolve, reject) => { // Retorna una promesa que se resuelve o se rechaza para manejar el resultado de la operación
+                var transaction = db.transaction(['contactos'], 'readonly'); // Inicia una transacción de lectura en el almacén de objetos "contactos"
+                var objectStore = transaction.objectStore('contactos'); // Obtiene el almacén de objetos "contactos" de la transacción
+                var cursorRequest = objectStore.openCursor(); // Abre un cursor para recorrer los registros del almacén de objetos
+
+                cursorRequest.onsuccess = function (event) { // Maneja el evento de éxito al abrir el cursor
+                    var cursor = event.target.result; // Obtiene el cursor resultante
+                    while (cursor) { // Mientras haya un cursor válido
+                        var row = contactosTable.insertRow(); // Inserta una nueva fila en la tabla de contactos
+                        var idCell = row.insertCell(0); // Inserta una celda para el ID
+                        var nameCell = row.insertCell(1); // Inserta una celda para el nombre
+                        idCell.textContent = cursor.value.id; // Asigna el ID del contacto a la celda correspondiente
+                        nameCell.textContent = cursor.value.nombre; // Asigna el nombre del contacto a la celda correspondiente
+                        cursor = cursor.continue(); // Continúa al siguiente registro en el cursor
+                    }
+                    if (!cursor) { // Si no hay más registros en el cursor
+                        resolve(); // Resuelve la promesa indicando que se han leído todos los contactos
+                    }
+                };
+
+                cursorRequest.onerror = function (event) { // Maneja el error al abrir el cursor
+                    reject(event.target.errorCode); // Rechaza la promesa con el código de error
+                    console.error("Error al abrir el cursor:", event.target.errorCode); // Agrega un log de error
+                    
+                };
+            });
+        };
+
+        // Función principal para abrir la base de datos y leer los contactos
+        const main = async () => { // Función asíncrona para manejar la lógica principal
+            try {
+                const db = await openDatabase(); // Espera a que se abra la base de datos
+                await readContacts(db); // Espera a que se lean los contactos de la base de datos
+            } catch (error) { // Maneja cualquier error que ocurra durante el proceso
+                console.error("Error:", error); // Agrega un log de error
+            }
+        };
+
+        main(); // Llama a la función principal para iniciar el proceso
+        
+    });
+
+</script>
+
+</html>
