@@ -1,84 +1,214 @@
 <html>
 
 <head>
-    <title>Formulario para insertar un contacto en IndexDB</title>
+    <title>Formulario para insertar datos en IndexDB</title>
     <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
-    <!-- <link rel="stylesheet" href="" type="text/css" /> -->
-
 </head>
 
 <body>
-    <h1>insertar contacto</h1>
-    <form id="contactoForm" >
+    <h1>Insertar Datos</h1>
+    
+    <!-- Formulario de Contacto -->
+    <form id="contactoForm">
+        <h2>Datos de Contacto</h2>
         <label for="id">ID:</label>
         <input id="id" name="id" required><br>
         <label for="nombre">Nombre:</label>
         <input id="nombre" name="nombre" required><br>
-        <button type="submit">Enviar</button>
+        <label for="telefono">Teléfono:</label>
+        <input id="telefono" name="telefono" required><br>
+        <button type="submit">Guardar Contacto</button>
     </form>
+
+    <!-- Formulario de Dirección -->
+    <form id="direccionForm">
+        <h2>Datos de Dirección</h2>
+        <label for="idDireccion">ID:</label>
+        <input id="idDireccion" name="idDireccion" required><br>
+        <label for="calle">Calle:</label>
+        <input id="calle" name="calle" required><br>
+        <label for="ciudad">Ciudad:</label>
+        <input id="ciudad" name="ciudad" required><br>
+        <button type="submit">Guardar Dirección</button>
+    </form>
+
     <div id="resultado">
         <h2>Resultado:</h2>
-        <p id="resultadoTexto">
+        <p id="resultadoTexto"></p>
 
-        </p>
+        <div id="tablasContainer">
+            <div class="tablaSeccion">
+                <h3>Contactos</h3>
+                <button onclick="mostrarDatos('contactos')">Actualizar Contactos</button>
+                <div id="tablaContactos"></div>
+            </div>
+
+            <div class="tablaSeccion">
+                <h3>Direcciones</h3>
+                <button onclick="mostrarDatos('direcciones')">Actualizar Direcciones</button>
+                <div id="tablaDirecciones"></div>
+            </div>
+        </div>
     </div>
 
-</body>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dbName = "multitablas";
+        const dbVersion = 1;
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const dbName = "contactos";
-    const dbVersion = 1;
+        const openDatabase = () => {
+            return new Promise((resolve, reject) => {
+                const request = window.indexedDB.open(dbName, dbVersion);
 
-    const openDatabase = () => {
-        return new Promise((resolve, reject) => {
-            const request = window.indexedDB.open(dbName, dbVersion);
+                request.onerror = (event) => reject(event.target.errorCode);
+                request.onsuccess = (event) => resolve(event.target.result);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    
+                    // Crear tabla de contactos
+                    if (!db.objectStoreNames.contains("contactos")) {
+                        const contactosStore = db.createObjectStore("contactos", { keyPath: "id" });
+                        contactosStore.createIndex("nombre", "nombre", { unique: false });
+                        contactosStore.createIndex("telefono", "telefono", { unique: false });
+                    }
 
-            request.onerror = (event) => reject(event.target.errorCode);
-            request.onsuccess = (event) => resolve(event.target.result);
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
-                if (!db.objectStoreNames.contains("contactos")) {
-                    const objectStore = db.createObjectStore("contactos", { keyPath: "id" });
-                    objectStore.createIndex("nombre", "nombre", { unique: false });
-                }
+                    // Crear tabla de direcciones
+                    if (!db.objectStoreNames.contains("direcciones")) {
+                        const direccionesStore = db.createObjectStore("direcciones", { keyPath: "id" });
+                        direccionesStore.createIndex("calle", "calle", { unique: false });
+                        direccionesStore.createIndex("ciudad", "ciudad", { unique: false });
+                    }
+                };
+            });
+        };
+
+        const insertarDatos = async (almacen, datos) => {
+            try {
+                const db = await openDatabase();
+                const transaction = db.transaction([almacen], "readwrite");
+                const objectStore = transaction.objectStore(almacen);
+                
+                return new Promise((resolve, reject) => {
+                    const addRequest = objectStore.add(datos);
+                    addRequest.onsuccess = () => {
+                        document.getElementById("resultadoTexto").innerText = 
+                            `Datos insertados con éxito en ${almacen}: ${JSON.stringify(datos)}`;
+                        resolve();
+                    };
+                    addRequest.onerror = (event) => {
+                        document.getElementById("resultadoTexto").innerText = 
+                            `Error al insertar en ${almacen}: ${event.target.error}`;
+                        reject(event.target.error);
+                    };
+                });
+            } catch (error) {
+                document.getElementById("resultadoTexto").innerText = 
+                    `Error al abrir la base de datos: ${error}`;
+                throw error;
+            }
+        };
+
+        const obtenerTodosLosDatos = async (almacen) => {
+            try {
+                const db = await openDatabase();
+                const transaction = db.transaction([almacen], "readonly");
+                const objectStore = transaction.objectStore(almacen);
+                
+                return new Promise((resolve, reject) => {
+                    const request = objectStore.getAll();
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = (event) => reject(event.target.error);
+                });
+            } catch (error) {
+                console.error(`Error al obtener datos de ${almacen}:`, error);
+                throw error;
+            }
+        };
+
+        const mostrarDatosEnTabla = (datos, almacen) => {
+            const contenedor = document.getElementById(`tabla${almacen.charAt(0).toUpperCase() + almacen.slice(1)}`);
+            if (datos.length === 0) {
+                contenedor.innerHTML = `<p>No hay datos en ${almacen}</p>`;
+                return;
+            }
+
+            let tabla = '<table border="1"><tr>';
+            // Obtener encabezados de la primera fila
+            const headers = Object.keys(datos[0]);
+            headers.forEach(header => {
+                tabla += `<th>${header}</th>`;
+            });
+            tabla += '</tr>';
+
+            // Añadir filas de datos
+            datos.forEach(item => {
+                tabla += '<tr>';
+                headers.forEach(header => {
+                    tabla += `<td>${item[header]}</td>`;
+                });
+                tabla += '</tr>';
+            });
+            tabla += '</table>';
+
+            contenedor.innerHTML = tabla;
+        };
+
+        const mostrarDatos = async (almacen) => {
+            try {
+                const datos = await obtenerTodosLosDatos(almacen);
+                mostrarDatosEnTabla(datos, almacen);
+            } catch (error) {
+                document.getElementById(`tabla${almacen.charAt(0).toUpperCase() + almacen.slice(1)}`).innerHTML = 
+                    `Error al obtener datos: ${error}`;
+            }
+        };
+
+        // Manejador del formulario de contactos
+        document.getElementById("contactoForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const contacto = {
+                id: document.getElementById("id").value,
+                nombre: document.getElementById("nombre").value,
+                telefono: document.getElementById("telefono").value
             };
+            await insertarDatos("contactos", contacto);
+            await mostrarDatos("contactos");
         });
-    };
 
-    const insertContacto = async (contacto) => {
-        try {
-            const db = await openDatabase();
-            const transaction = db.transaction(["contactos"], "readwrite");
-            const objectStore = transaction.objectStore("contactos");
-            const addRequest = objectStore.add(contacto);
-
-            addRequest.onsuccess = () => {
-                document.getElementById("resultadoTexto").innerText = `Contacto insertado con éxito: ${JSON.stringify(contacto)}`;
+        // Manejador del formulario de direcciones
+        document.getElementById("direccionForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const direccion = {
+                id: document.getElementById("idDireccion").value,
+                calle: document.getElementById("calle").value,
+                ciudad: document.getElementById("ciudad").value
             };
+            await insertarDatos("direcciones", direccion);
+            await mostrarDatos("direcciones");
+        });
 
-            addRequest.onerror = (event) => {
-                document.getElementById("resultadoTexto").innerText = `Error al insertar el contacto: ${event.target.errorCode}`;
-            };
-        } catch (error) {
-            document.getElementById("resultadoTexto").innerText = `Error al abrir la base de datos: ${error}`;
-        }
-    };
-
-    document.getElementById("contactoForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const id = document.getElementById("id").value;
-        const nombre = document.getElementById("nombre").value;
-
-        if (id && nombre) {
-            const contacto = { id, nombre };
-            await insertContacto(contacto);
-        } else {
-            document.getElementById("resultadoTexto").innerText = "Por favor, complete todos los campos.";
-        }
+        // Mostrar datos iniciales
+        mostrarDatos("contactos");
+        mostrarDatos("direcciones");
     });
-});
+    </script>
 
-</script>
-
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .tablaSeccion {
+            margin: 20px 0;
+        }
+        button {
+            margin: 10px 0;
+        }
+    </style>
+</body>
 </html>

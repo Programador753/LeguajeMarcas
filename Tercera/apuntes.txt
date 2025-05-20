@@ -1,0 +1,5 @@
+ - indexedDB
+ - Cookies
+ - sessionStorage
+ - carrito compra 
+ 

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Super Tienda Completa</title>
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+    <style>
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .productos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .producto { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        .carrito { 
+            position: fixed; 
+            right: 20px; 
+            top: 20px; 
+            width: 300px;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .preferencias { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; }
+        .historial-item { 
+            border: 1px solid #ddd; 
+            margin: 10px 0; 
+            padding: 10px;
+        }
+        .cookies-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f0f0;
+        }
+        .total-carrito {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .mensaje {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        .mensaje.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .mensaje.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="preferencias">
+            <h3>Preferencias de Usuario</h3>
+            <label>Tema: 
+                <select id="tema" onchange="guardarPreferencias()">
+                    <option value="claro">Claro</option>
+                    <option value="oscuro">Oscuro</option>
+                    <option value="azul">Azul</option>
+                </select>
+            </label>
+            <label>Moneda: 
+                <select id="moneda" onchange="guardarPreferencias()">
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                    <option value="GBP">GBP</option>
+                </select>
+            </label>
+            <button onclick="mostrarPreferencias()">Ver Cookies</button>
+            <div id="cookies-info" class="cookies-info"></div>
+            <a href="admin.html" class="admin-link" style="display: block; margin-top: 10px;">Panel de Administración</a>
+        </div>
+
+        <div class="productos" id="catalogo"></div>
+        
+        <div class="carrito">
+            <h3>Carrito de Compra</h3>
+            <div id="items-carrito"></div>
+            <div class="total-carrito" id="total-carrito"></div>
+            <button onclick="vaciarCarrito()">Vaciar Carrito</button>
+            <button onclick="finalizarCompra()">Finalizar Compra</button>
+        </div>
+
+        <div id="historial">
+            <h3>Historial de Compras</h3>
+            <button onclick="limpiarHistorial()">Limpiar Historial</button>
+            <div id="lista-historial"></div>
+        </div>
+    </div>
+
+    <script>
+        const dbName = "tiendaCompletaDB";
+        const dbVersion = 1;
+
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, dbVersion);
+
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+
+                    // Store para productos con más información
+                    if (!db.objectStoreNames.contains('productos')) {
+                        const productosStore = db.createObjectStore('productos', { keyPath: 'id' });
+                        productosStore.createIndex('nombre', 'nombre', { unique: false });
+                        productosStore.createIndex('categoria', 'categoria', { unique: false });
+                        
+                        // Productos iniciales más detallados
+                        const productos = [
+                            { 
+                                id: 1, 
+                                nombre: "Portátil ASUS TUF Gaming", 
+                                precio: 999, 
+                                imagen: "asus.webp",
+                                categoria: "Portátiles",
+                                descripcion: "Potente portátil gaming",
+                                stock: 10
+                            },
+                            { 
+                                id: 2, 
+                                nombre: "Monitor AOC 24G4XE", 
+                                precio: 299, 
+                                imagen: "monitor.webp",
+                                categoria: "Monitores",
+                                descripcion: "Monitor gaming 144Hz",
+                                stock: 15
+                            },
+                            { 
+                                id: 3, 
+                                nombre: "RTX 4060 8GB", 
+                                precio: 399, 
+                                imagen: "grafica.webp",
+                                categoria: "Tarjetas Gráficas",
+                                descripcion: "Última generación NVIDIA",
+                                stock: 5
+                            }
+                        ];
+                        
+                        productos.forEach(producto => {
+                            productosStore.add(producto);
+                        });
+                    }
+
+                    // Store para historial con más detalles
+                    if (!db.objectStoreNames.contains('historial')) {
+                        const historialStore = db.createObjectStore('historial', { 
+                            keyPath: 'id', 
+                            autoIncrement: true 
+                        });
+                        historialStore.createIndex('fecha', 'fecha');
+                        historialStore.createIndex('total', 'total');
+                    }
+                };
+            });
+        };
+
+        // Gestión mejorada de Cookies
+        function guardarPreferencias() {
+            const tema = document.getElementById('tema').value;
+            const moneda = document.getElementById('moneda').value;
+            
+            document.cookie = `tema=${tema};max-age=2592000`; // 30 días
+            document.cookie = `moneda=${moneda};max-age=2592000`;
+            
+            aplicarPreferencias();
+        }
+
+        function aplicarPreferencias() {
+            const tema = getCookie('tema') || 'claro';
+            const moneda = getCookie('moneda') || 'EUR';
+
+            // Aplicar tema
+            let backgroundColor, textColor;
+            switch(tema) {
+                case 'oscuro':
+                    backgroundColor = '#333';
+                    textColor = '#fff';
+                    break;
+                case 'azul':
+                    backgroundColor = '#1a237e';
+                    textColor = '#fff';
+                    break;
+                default:
+                    backgroundColor = '#fff';
+                    textColor = '#333';
+            }
+            
+            document.body.style.backgroundColor = backgroundColor;
+            document.body.style.color = textColor;
+
+            // Actualizar moneda en precios
+            mostrarCarrito();
+        }
+
+        function mostrarPreferencias() {
+            const cookiesInfo = document.getElementById('cookies-info');
+            const cookies = document.cookie.split(';')
+                .map(cookie => cookie.trim())
+                .join('<br>');
+            cookiesInfo.innerHTML = `Cookies actuales:<br>${cookies || 'No hay cookies'}`;
+        }
+
+        function getCookie(nombre) {
+            const cookies = document.cookie.split(';');
+            for(let cookie of cookies) {
+                const [key, value] = cookie.split('=');
+                if (key.trim() === nombre) return value;
+            }
+            return null;
+        }
+
+        // Gestión mejorada del Carrito
+        function agregarAlCarrito(producto) {
+            let carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+            const itemExistente = carrito.find(item => item.id === producto.id);
+            
+            if (itemExistente) {
+                itemExistente.cantidad = (itemExistente.cantidad || 1) + 1;
+            } else {
+                producto.cantidad = 1;
+                carrito.push(producto);
+            }
+            
+            sessionStorage.setItem('carrito', JSON.stringify(carrito));
+            mostrarCarrito();
+        }
+
+        function mostrarCarrito() {
+            const carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+            const container = document.getElementById('items-carrito');
+            const moneda = getCookie('moneda') || 'EUR';
+            
+            const simboloMoneda = {
+                'EUR': '€',
+                'USD': '$',
+                'GBP': '£'
+            }[moneda];
+
+            container.innerHTML = carrito.map(item => `
+                <div>
+                    ${item.nombre} x${item.cantidad || 1} - 
+                    ${(item.precio * (item.cantidad || 1)).toFixed(2)}${simboloMoneda}
+                    <button onclick='eliminarDelCarrito(${item.id})'>×</button>
+                </div>
+            `).join('');
+
+            const total = carrito.reduce((sum, item) => 
+                sum + (item.precio * (item.cantidad || 1)), 0);
+            document.getElementById('total-carrito').innerHTML = 
+                `Total: ${total.toFixed(2)}${simboloMoneda}`;
+        }
+
+        function eliminarDelCarrito(id) {
+            let carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+            carrito = carrito.filter(item => item.id !== id);
+            sessionStorage.setItem('carrito', JSON.stringify(carrito));
+            mostrarCarrito();
+        }
+
+        function vaciarCarrito() {
+            sessionStorage.removeItem('carrito');
+            mostrarCarrito();
+        }
+
+        // Historial mejorado en IndexedDB
+        async function finalizarCompra() {
+            const carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+            if (carrito.length === 0) return;
+
+            const db = await initDB();
+            const tx = db.transaction('historial', 'readwrite');
+            const store = tx.objectStore('historial');
+
+            const compra = {
+                fecha: new Date(),
+                items: carrito,
+                total: carrito.reduce((sum, item) => 
+                    sum + (item.precio * (item.cantidad || 1)), 0),
+                moneda: getCookie('moneda') || 'EUR'
+            };
+
+            await store.add(compra);
+            sessionStorage.removeItem('carrito');
+            mostrarCarrito();
+            mostrarHistorial();
+        }
+
+        async function limpiarHistorial() {
+            const db = await initDB();
+            const tx = db.transaction('historial', 'readwrite');
+            const store = tx.objectStore('historial');
+            await store.clear();
+            mostrarHistorial();
+        }
+
+        // Función para verificar stock disponible
+        async function verificarStock(producto, cantidad) {
+            try {
+                const db = await initDB();
+                const tx = db.transaction('productos', 'readonly');
+                const store = tx.objectStore('productos');
+                
+                return new Promise((resolve, reject) => {
+                    const request = store.get(producto.id);
+                    request.onsuccess = () => {
+                        const productoActual = request.result;
+                        console.log('Stock actual:', productoActual.stock, 'Cantidad solicitada:', cantidad);
+                        resolve(productoActual && productoActual.stock >= cantidad);
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            } catch (error) {
+                console.error('Error al verificar stock:', error);
+                return false;
+            }
+        }
+
+        // Función para actualizar stock
+        async function actualizarStock(producto, cantidad) {
+            try {
+                const db = await initDB();
+                const tx = db.transaction('productos', 'readwrite');
+                const store = tx.objectStore('productos');
+                
+                return new Promise((resolve, reject) => {
+                    const request = store.get(producto.id);
+                    request.onsuccess = () => {
+                        const productoActual = request.result;
+                        productoActual.stock -= cantidad;
+                        const updateRequest = store.put(productoActual);
+                        updateRequest.onsuccess = () => resolve();
+                        updateRequest.onerror = () => reject(updateRequest.error);
+                    };
+                    request.onerror = () => reject(request.error);
+                });
+            } catch (error) {
+                console.error('Error al actualizar stock:', error);
+                throw error;
+            }
+        }
+
+        // Modificar la función agregarAlCarrito
+        async function agregarAlCarrito(producto) {
+            try {
+                let carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+                const itemExistente = carrito.find(item => item.id === producto.id);
+                const nuevaCantidad = (itemExistente?.cantidad || 0) + 1;
+
+                const hayStock = await verificarStock(producto, nuevaCantidad);
+                console.log('¿Hay stock?:', hayStock);
+                
+                if (!hayStock) {
+                    mostrarMensaje('No hay suficiente stock disponible', 'error');
+                    return;
+                }
+
+                if (itemExistente) {
+                    itemExistente.cantidad = nuevaCantidad;
+                } else {
+                    producto = {...producto, cantidad: 1};
+                    carrito.push(producto);
+                }
+                
+                sessionStorage.setItem('carrito', JSON.stringify(carrito));
+                mostrarCarrito();
+                mostrarMensaje('Producto agregado al carrito', 'success');
+            } catch (error) {
+                console.error('Error al agregar al carrito:', error);
+                mostrarMensaje('Error al agregar el producto', 'error');
+            }
+        }
+
+        // Modificar la función finalizarCompra
+        async function finalizarCompra() {
+            try {
+                const carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+                if (carrito.length === 0) return;
+
+                // Verificar stock antes de finalizar
+                for (const item of carrito) {
+                    const hayStock = await verificarStock(item, item.cantidad);
+                    if (!hayStock) {
+                        mostrarMensaje(`No hay suficiente stock de ${item.nombre}`, 'error');
+                        return;
+                    }
+                }
+
+                // Actualizar stock
+                for (const item of carrito) {
+                    await actualizarStock(item, item.cantidad);
+                }
+
+                const db = await initDB();
+                const tx = db.transaction('historial', 'readwrite');
+                const store = tx.objectStore('historial');
+
+                const compra = {
+                    fecha: new Date(),
+                    items: carrito,
+                    total: carrito.reduce((sum, item) => 
+                        sum + (item.precio * item.cantidad), 0),
+                    moneda: getCookie('moneda') || 'EUR'
+                };
+
+                await store.add(compra);
+                sessionStorage.removeItem('carrito');
+                mostrarCarrito();
+                mostrarHistorial();
+                init(); // Actualizar la vista de productos con el nuevo stock
+                mostrarMensaje('Compra finalizada con éxito', 'success');
+            } catch (error) {
+                console.error('Error al finalizar la compra:', error);
+                mostrarMensaje('Error al procesar la compra', 'error');
+            }
+        }
+
+        // Agregar función para mostrar mensajes
+        function mostrarMensaje(mensaje, tipo) {
+            const mensajeDiv = document.createElement('div');
+            mensajeDiv.textContent = mensaje;
+            mensajeDiv.className = `mensaje ${tipo}`;
+            mensajeDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 10px 20px;
+                border-radius: 5px;
+                z-index: 1000;
+                ${tipo === 'error' ? 'background: #ffebee; color: #c62828;' : 
+                                   'background: #e8f5e9; color: #2e7d32;'}
+            `;
+            document.body.appendChild(mensajeDiv);
+            setTimeout(() => mensajeDiv.remove(), 3000);
+        }
+
+        // Inicialización mejorada
+        async function init() {
+            try {
+                const db = await initDB();
+                
+                // Cargar productos de forma segura
+                const productos = await new Promise((resolve, reject) => {
+                    const tx = db.transaction('productos', 'readonly');
+                    const store = tx.objectStore('productos');
+                    const request = store.getAll();
+                    
+                    request.onsuccess = () => resolve(Array.from(request.result || []));
+                    request.onerror = () => reject(request.error);
+                });
+
+                // Mostrar productos con verificación
+                const catalogo = document.getElementById('catalogo');
+                if (!productos || productos.length === 0) {
+                    catalogo.innerHTML = '<p>No hay productos disponibles</p>';
+                    return;
+                }
+
+                const moneda = getCookie('moneda') || 'EUR';
+                const simboloMoneda = {
+                    'EUR': '€',
+                    'USD': '$',
+                    'GBP': '£'
+                }[moneda];
+
+                catalogo.innerHTML = productos.map(producto => `
+                    <div class="producto">
+                        <img src="imagenes/${producto.imagen}" style="width:100px">
+                        <h4>${producto.nombre}</h4>
+                        <p class="categoria">${producto.categoria}</p>
+                        <p class="descripcion">${producto.descripcion}</p>
+                        <p class="precio">${producto.precio}${simboloMoneda}</p>
+                        <p class="stock">Stock: ${producto.stock}</p>
+                        <button onclick='agregarAlCarrito(${JSON.stringify(producto)})'>
+                            Añadir al carrito
+                        </button>
+                    </div>
+                `).join('');
+
+                aplicarPreferencias();
+                mostrarCarrito();
+                mostrarHistorial();
+            } catch (error) {
+                console.error('Error al inicializar la tienda:', error);
+                document.getElementById('catalogo').innerHTML = 
+                    '<p class="error">Error al cargar los productos</p>';
+            }
+        }
+
+        async function mostrarHistorial() {
+            try {
+                const db = await initDB();
+                const tx = db.transaction('historial', 'readonly');
+                const store = tx.objectStore('historial');
+                
+                // Obtener historial de forma segura
+                const historial = await new Promise((resolve, reject) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(Array.from(request.result || []));
+                    request.onerror = () => reject(request.error);
+                });
+
+                const container = document.getElementById('lista-historial');
+                
+                if (!historial || historial.length === 0) {
+                    container.innerHTML = '<p>No hay historial de compras</p>';
+                    return;
+                }
+
+                container.innerHTML = historial.map(compra => `
+                    <div class="historial-item">
+                        <p>Fecha: ${new Date(compra.fecha).toLocaleString()}</p>
+                        <p>Items: ${compra.items.map(item => 
+                            `${item.nombre} x${item.cantidad}`).join(', ')}</p>
+                        <p>Total: ${compra.total}${compra.moneda}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error al mostrar historial:', error);
+                document.getElementById('lista-historial').innerHTML = 
+                    '<p class="error">Error al cargar el historial</p>';
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
