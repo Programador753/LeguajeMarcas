@@ -1,0 +1,116 @@
+<!-- Realizar un programa que cree una base de datos llamada “Tienda” con dos
+tablas:
+“Productos” con los campos id y nomProducto (siendo id la clave).
+“Ventas” con los mismos campos.
+Además, inserta automáticamente 10 productos hortofrutícolas en la tabla
+“Productos” -->
+
+<html>
+
+<head>
+    <title>Tienda</title>
+    <script type="text/javascript" src="jquery-1.11.2.min.js"></script>
+    <script>
+        const dbName = "tienda";
+        const dbVersion = 1;
+
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, dbVersion);
+
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+
+                    // Store para productos con más información
+                    if (!db.objectStoreNames.contains('productos')) {
+                        const productosStore = db.createObjectStore('productos', { keyPath: 'id' });
+                        productosStore.createIndex('nomProducto', 'nomProducto', { unique: false });
+
+                        const productos = [
+                            {
+                                id: 1,
+                                nomProducto: "Tomate",
+                            },
+                            {
+                                id: 2,
+                                nomProducto: "Pimiento",
+                            },
+                            {
+                                id: 3,
+                                nomProducto: "Manzana",
+                            },
+                            {
+                                id: 4,
+                                nomProducto: "Patata",
+                            },
+                            {
+                                id: 5,
+                                nomProducto: "Cebolla",
+                            },
+                            {
+                                id: 6,
+                                nomProducto: "Platano",
+                            },
+                            {
+                                id: 7,
+                                nomProducto: "Melocoton",
+                            },
+                            {
+                                id: 8,
+                                nomProducto: "Cereza",
+                            },
+                            {
+                                id: 9,
+                                nomProducto: "Limon",
+                            },
+                            {
+                                id: 10,
+                                nomProducto: "Naranja",
+                            }
+
+                        ];
+                        productos.forEach(producto => {
+                            productosStore.add(producto);
+                        });
+                    }
+
+                    // Store para historial con más detalles
+                    if (!db.objectStoreNames.contains('ventas')) {
+                        const ventasStore = db.createObjectStore('ventas', { keyPath: 'id' });
+                        ventasStore.createIndex('nomProducto', 'nomProducto', { unique: false });
+                    }
+                };
+            });
+        };
+        // Inicialización mejorada
+        async function init() {
+            try {
+                const db = await initDB();
+
+                // Cargar productos de forma segura
+                const productos = await new Promise((resolve, reject) => {
+                    const tx = db.transaction('productos', 'readonly');
+                    const store = tx.objectStore('productos');
+                    const request = store.getAll();
+
+                    request.onsuccess = () => resolve(Array.from(request.result || []));
+                    request.onerror = () => reject(request.error);
+                });
+
+            } catch (error) {
+                console.error('Error al inicializar la tienda:', error);
+            }
+        }
+        window.onload = init;
+
+    </script>
+</head>
+
+<body>
+
+</body>
+
+</html>

@@ -292,7 +292,7 @@
         }
 
         async function limpiarHistorial() {
-            const db = await initDB();
+            const db = await initDB(); 
             const tx = db.transaction('historial', 'readwrite');
             const store = tx.objectStore('historial');
             await store.clear();

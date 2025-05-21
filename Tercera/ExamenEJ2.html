@@ -1,0 +1,194 @@
+<!--Crear otra página web que muestre en pantalla la lista de productos
+existentes en la tabla “Productos”.
+Junto a cada producto habrá un botón; al pulsarlo, el producto se añadirá al
+carrito de la compra, es decir, a la variable sessionStorage.
+Debajo de la lista mostrarás una tabla con el contenido actual del carrito leído
+de sessionStorage.-->
+<html>
+
+<head>
+    <title>Pagina 2</title>
+
+    <script>
+        const dbName = "tienda";
+        const dbVersion = 1;
+
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, dbVersion);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('productos')) {
+                        const store = db.createObjectStore('productos', { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('nomProducto', 'nomProducto', { unique: false });
+                    }
+                };
+            });
+        }
+        async function cargarProductos() {
+            try {
+                const db = await initDB();
+                const tx = db.transaction('productos', 'readonly');
+                const store = tx.objectStore('productos');
+
+                // Modificamos la forma de obtener los productos
+                const productos = await new Promise((resolve, reject) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(Array.from(request.result || []));
+                    request.onerror = () => reject(request.error);
+                });
+
+                const container = document.getElementById('productos');
+
+                if (!productos || productos.length === 0) {
+                    container.innerHTML = '<p>No hay productos disponibles</p>';
+                    return;
+                }
+
+                container.innerHTML = productos.map(producto => `
+                    <div>
+                        <div>
+                            <h3>${producto.id}, ${producto.nomProducto}</h3> 
+                            <button onclick='agregarAlCarrito(${JSON.stringify(producto)})'>
+                            Añadir al carrito
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error al cargar productos:', error);
+            }
+            mostrarCarrito();
+
+        }
+        // Agregar función para mostrar mensajes
+        function mostrarMensaje(mensaje, tipo) {
+            const mensajeDiv = document.createElement('div');
+            mensajeDiv.textContent = mensaje;
+            mensajeDiv.className = `mensaje ${tipo}`;
+            mensajeDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 10px 20px;
+                border-radius: 5px;
+                z-index: 1000;
+                ${tipo === 'error' ? 'background: #ffebee; color: #c62828;' :
+                    'background: #e8f5e9; color: #2e7d32;'}
+            `;
+            document.body.appendChild(mensajeDiv);
+            setTimeout(() => mensajeDiv.remove(), 3000);
+        }
+        async function agregarAlCarrito(producto) {
+            try {
+                let carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+                const itemExistente = carrito.find(item => item.id === producto.id);
+                const nuevaCantidad = (itemExistente?.cantidad || 0) + 1;
+
+                
+
+                if (itemExistente) {
+                    itemExistente.cantidad = nuevaCantidad;
+                } else {
+                    producto = {...producto, cantidad: 1};
+                    carrito.push(producto);
+                }
+                
+                sessionStorage.setItem('carrito', JSON.stringify(carrito));
+                mostrarCarrito();
+                mostrarMensaje('Producto agregado al carrito', 'success');
+            } catch (error) {
+                console.error('Error al agregar al carrito:', error);
+                mostrarMensaje('Error al agregar el producto', 'error');
+            }
+        }
+        function eliminarDelCarrito(id) {
+            let carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+            carrito = carrito.filter(item => item.id !== id);
+            sessionStorage.setItem('carrito', JSON.stringify(carrito));
+            mostrarCarrito();
+        }
+        function mostrarCarrito() {
+            const carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+            const container = document.getElementById('items-carrito');
+
+            container.innerHTML = carrito.map(item => `
+                <div>
+                    ${item.nomProducto} x${item.cantidad || 1}
+                    <button onclick='eliminarDelCarrito(${item.id})'> X </button>
+                </div>
+            `).join('');
+        }
+        // Esta función comprueba si la tabla "ventas" existe, y la crea si no existe
+        async function initVentasStore() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, dbVersion);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('ventas')) {
+                        const store = db.createObjectStore('ventas', { keyPath: 'id', autoIncrement: true });
+                        store.createIndex('nomProducto', 'nomProducto', { unique: false });
+                    }
+                };
+            });
+        }
+
+        async function confirmarCompra() {
+            if (document.cookie.includes('carrito_confirmado')) {
+                mostrarMensaje('Ya has confirmado tu carrito recientemente', 'error');
+                return;
+            }
+
+            try {
+                const carrito = JSON.parse(sessionStorage.getItem('carrito') || '[]');
+                if (carrito.length === 0) {
+                    mostrarMensaje('El carrito está vacío', 'error');
+                    return; 
+                }
+
+                const db = await initDB();
+                const tx = db.transaction('ventas', 'readwrite');
+                const store = tx.objectStore('ventas');
+
+                for (const item of carrito) {
+                    await store.add({
+                        id: item.id,
+                        nomProducto: item.nomProducto,
+
+                    });
+                }
+
+                const expiracion = new Date();
+                expiracion.setMinutes(expiracion.getMinutes() + 5);
+                document.cookie = `carrito_confirmado=true;expires=${expiracion};max-age=300;`;
+
+                sessionStorage.removeItem('carrito');
+                mostrarCarrito();
+                mostrarMensaje('Compra confirmada con éxito', 'success');
+            } catch (error) {
+                console.error('Error al confirmar la compra:', error);
+                mostrarMensaje('Error al procesar la compra', 'error');
+            }   
+        }
+        window.onload = cargarProductos;
+    </script>
+</head>
+
+<body>
+    <div id="listaProductos">
+        <h2>Productos Existentes</h2>
+        <div id="productos"></div>
+    </div>
+    <div>
+        <h3>Carrito de Compra</h3>
+        <div id="items-carrito"></div>
+        <button onclick='confirmarCompra()'> Confirmar compra </button>
+    </div>
+</body>
+
+</html>
